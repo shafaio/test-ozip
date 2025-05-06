@@ -14,28 +14,22 @@ let tasks = [
   },
 ];
 
+const filterCheckbox = document.getElementById("filterCheckbox");
+let showOnlyUncompleted = false;
+
 function addTask() {
   const taskText = taskInput.value;
   if (taskText === "") {
     alert("Please enter a task");
     return;
   }
-  
-const filterCheckbox = document.getElementById("filterCheckbox");
-
-let showOnlyUncompleted = false;
-
-function addTask() {
-  const taskText = taskInput.value.trim();
-  if (taskText === "") return;
 
   tasks.push({
     text: taskText,
     completed: false,
     createdAt: new Date(),
-  };
+  });
 
-  tasks.push(task);
   taskInput.value = "";
   renderTasks();
 }
@@ -43,18 +37,36 @@ function addTask() {
 function renderTasks() {
   taskList.innerHTML = "";
 
+  if (tasks.length === 0) {
+    const li = document.createElement("p");
+    li.textContent = "No tasks found";
+    taskList.appendChild(li);
+    return;
+  }
+
   const filteredTasks = showOnlyUncompleted
-    ? tasks.filter(task => !task.completed)
+    ? tasks.filter((task) => !task.completed)
     : tasks;
 
-  filteredTasks.forEach((task, indexInFiltered) => {
+  filteredTasks.forEach((task) => {
     const indexInAllTasks = tasks.indexOf(task);
 
     const li = document.createElement("li");
+    li.style.cursor = "pointer";
     li.textContent = task.text;
+
     if (task.completed) {
       li.style.textDecoration = "line-through";
     }
+
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.addEventListener("click", (e) => {
+      e.stopPropagation();
+      tasks.splice(indexInAllTasks, 1);
+      renderTasks();
+    });
+    li.appendChild(deleteButton);
 
     li.addEventListener("click", () => toggleTask(indexInAllTasks));
     taskList.appendChild(li);
@@ -65,7 +77,6 @@ function toggleTask(index) {
   tasks[index].completed = !tasks[index].completed;
   renderTasks();
 }
-
 
 window.addEventListener("DOMContentLoaded", renderTasks);
 
